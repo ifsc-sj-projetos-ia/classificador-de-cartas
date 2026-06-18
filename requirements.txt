@@ -1,0 +1,13 @@
+# Ambiente de referência: Google Colab (GPU T4), Python 3.
+# Ajuste/pinar as versões EXATAS usadas no treino antes de publicar
+# (rode `pip freeze` no Colab e cole aqui) para garantir reprodutibilidade.
+
+torch
+torchvision
+numpy
+scikit-learn
+scikit-image        # HOG do baseline
+matplotlib          # matrizes de confusão
+pandas              # leitura/geração dos CSVs em reports/
+pillow              # carregamento de imagens
+tqdm                # barras de progresso

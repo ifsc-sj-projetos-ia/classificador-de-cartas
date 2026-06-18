@@ -1,0 +1,57 @@
+,precision,recall,f1-score,support
+ace of clubs,1.0,1.0,1.0,5.0
+ace of diamonds,1.0,1.0,1.0,5.0
+ace of hearts,1.0,1.0,1.0,5.0
+ace of spades,0.833,1.0,0.909,5.0
+eight of clubs,0.833,1.0,0.909,5.0
+eight of diamonds,0.833,1.0,0.909,5.0
+eight of hearts,1.0,1.0,1.0,5.0
+eight of spades,1.0,1.0,1.0,5.0
+five of clubs,0.833,1.0,0.909,5.0
+five of diamonds,1.0,0.8,0.889,5.0
+five of hearts,0.833,1.0,0.909,5.0
+five of spades,1.0,1.0,1.0,5.0
+four of clubs,1.0,1.0,1.0,5.0
+four of diamonds,1.0,1.0,1.0,5.0
+four of hearts,1.0,1.0,1.0,5.0
+four of spades,1.0,0.8,0.889,5.0
+jack of clubs,1.0,1.0,1.0,5.0
+jack of diamonds,1.0,1.0,1.0,5.0
+jack of hearts,1.0,1.0,1.0,5.0
+jack of spades,0.833,1.0,0.909,5.0
+joker,1.0,0.6,0.75,5.0
+king of clubs,1.0,1.0,1.0,5.0
+king of diamonds,1.0,1.0,1.0,5.0
+king of hearts,1.0,1.0,1.0,5.0
+king of spades,1.0,1.0,1.0,5.0
+nine of clubs,1.0,1.0,1.0,5.0
+nine of diamonds,1.0,0.8,0.889,5.0
+nine of hearts,1.0,0.8,0.889,5.0
+nine of spades,1.0,0.8,0.889,5.0
+queen of clubs,1.0,0.8,0.889,5.0
+queen of diamonds,1.0,0.8,0.889,5.0
+queen of hearts,0.833,1.0,0.909,5.0
+queen of spades,1.0,1.0,1.0,5.0
+seven of clubs,1.0,0.8,0.889,5.0
+seven of diamonds,1.0,1.0,1.0,5.0
+seven of hearts,1.0,1.0,1.0,5.0
+seven of spades,1.0,1.0,1.0,5.0
+six of clubs,0.833,1.0,0.909,5.0
+six of diamonds,1.0,1.0,1.0,5.0
+six of hearts,1.0,0.8,0.889,5.0
+six of spades,0.714,1.0,0.833,5.0
+ten of clubs,0.833,1.0,0.909,5.0
+ten of diamonds,1.0,1.0,1.0,5.0
+ten of hearts,1.0,1.0,1.0,5.0
+ten of spades,1.0,0.8,0.889,5.0
+three of clubs,1.0,1.0,1.0,5.0
+three of diamonds,0.625,1.0,0.769,5.0
+three of hearts,1.0,0.8,0.889,5.0
+three of spades,1.0,1.0,1.0,5.0
+two of clubs,1.0,1.0,1.0,5.0
+two of diamonds,1.0,1.0,1.0,5.0
+two of hearts,1.0,1.0,1.0,5.0
+two of spades,1.0,0.8,0.889,5.0
+accuracy,0.947,0.947,0.947,0.947
+macro avg,0.959,0.947,0.947,265.0
+weighted avg,0.959,0.947,0.947,265.0

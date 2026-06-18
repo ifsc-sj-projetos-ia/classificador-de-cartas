@@ -1,0 +1,4 @@
+experimento,val_acc,test_acc,test_macroF1
+FE (congelado),0.4528,0.3849,0.363
+FE + fine-tuning,0.9925,0.9472,0.9472
+FE+FT sem augmentation,0.9887,0.9736,0.9734

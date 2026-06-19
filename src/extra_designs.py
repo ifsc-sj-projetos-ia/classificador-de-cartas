@@ -21,8 +21,9 @@ As 53 classes resultantes usam EXATAMENTE os mesmos nomes de pasta do dataset
 de treino, para casar com data.ImageFolder.
 
 Uso (linha de comando):
-    # a partir de um diretorio local com os PNGs do pacote Kenney:
-    python -m src.extra_designs --assets-dir /caminho/PNG-cards --out data/raw/extra_kenney
+    # assets-dir = a pasta com os PNGs do baralho (ex.: "PNG/Cards (large)").
+    # Arquivos esperados: card_<naipe>_<valor>.png (card_clubs_02.png, card_hearts_A.png...).
+    python -m src.extra_designs --assets-dir "PNG/Cards (large)" --out data/raw/extra_kenney
 
     # depois, no treino, aponte o loader multi-design para ESTA pasta
     # (ver build_dataloaders(..., extra_train_dirs=[...]) em src/data.py).
@@ -34,31 +35,33 @@ import argparse
 import sys
 from pathlib import Path
 
-# Valor no nome do arquivo de origem -> palavra usada nas classes de treino.
+# Valor no nome do arquivo de origem (Kenney) -> palavra usada nas classes de treino.
+# O pacote Kenney usa numeros com zero a esquerda (02..10) e letras A/J/Q/K.
 VALUE_MAP = {
-    "A": "ace", "2": "two", "3": "three", "4": "four", "5": "five",
-    "6": "six", "7": "seven", "8": "eight", "9": "nine", "10": "ten",
+    "A": "ace", "02": "two", "03": "three", "04": "four", "05": "five",
+    "06": "six", "07": "seven", "08": "eight", "09": "nine", "10": "ten",
     "J": "jack", "Q": "queen", "K": "king",
 }
-# Pacote Kenney usa estes nomes de naipe nos arquivos.
-SUIT_MAP = {"A": "clubs", "B": "diamonds", "C": "hearts", "D": "spades"}
-
-# O pacote Kenney nomeia os arquivos como "card<Naipe><Valor>.png",
-# ex.: cardClubs2.png, cardHeartsA.png, cardSpadesK.png.
-SUIT_FILE = {"clubs": "Clubs", "diamonds": "Diamonds", "hearts": "Hearts", "spades": "Spades"}
+SUITS = ("clubs", "diamonds", "hearts", "spades")
 
 
 def _planned_files():
-    """Lista (arquivo_origem, nome_da_classe, nome_do_arquivo_destino)."""
+    """Lista (arquivo_origem, nome_da_classe, nome_do_arquivo_destino).
+
+    O pacote Kenney nomeia os arquivos como "card_<naipe>_<valor>.png",
+    ex.: card_clubs_02.png, card_hearts_A.png, card_spades_K.png.
+    """
     plan = []
     for val, word in VALUE_MAP.items():
-        for suit in ("clubs", "diamonds", "hearts", "spades"):
-            src_name = f"card{SUIT_FILE[suit]}{val}.png"
+        for suit in SUITS:
+            src_name = f"card_{suit}_{val}.png"
             class_name = f"{word} of {suit}"
             dst_name = f"{word}_of_{suit}_kenney01.png"
             plan.append((src_name, class_name, dst_name))
-    # O dataset de treino tem UMA classe coringa. O pacote Kenney traz dois jokers.
-    plan.append(("cardJoker.png", "joker", "joker_kenney01.png"))
+    # O dataset de treino tem UMA classe coringa. O Kenney nao traz coringa em
+    # todas as versoes; se faltar, o build apenas avisa (52 cartas ja bastam).
+    plan.append(("card_joker_red.png", "joker", "joker_kenney01.png"))
+    plan.append(("card_joker_black.png", "joker", "joker_kenney02.png"))
     return plan
 
 
@@ -105,7 +108,7 @@ def build_extra_design_set(out_dir: str, assets_dir: str) -> str:
     if n_missing:
         print(f"  AVISO: {len(n_missing)} arquivos nao encontrados em {src_assets}:")
         print("    " + ", ".join(n_missing[:8]) + (" ..." if len(n_missing) > 8 else ""))
-        print("  Confira os nomes dos PNGs do pacote (ex.: cardClubs2.png, cardHeartsA.png).")
+        print("  Confira os nomes dos PNGs do pacote (ex.: card_clubs_02.png, card_hearts_A.png).")
     return str(out.resolve())
 
 

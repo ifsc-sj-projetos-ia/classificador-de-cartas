@@ -21,9 +21,10 @@ Playing Cards), senão a métrica perde o sentido.
 
 ```bash
 # 1) Baixe o pacote Kenney Playing Cards (CC0/domínio público): https://kenney.nl
-#    -> descompacte; os PNGs ficam num diretório (ex.: .../PNG-cards/).
-# 2) Monte as 53 classes a partir desses PNGs:
-python -m src.extra_designs --assets-dir /caminho/PNG-cards --out data/raw/extra_kenney
+#    -> descompacte; os PNGs ficam em "PNG/Cards (large)/" com nomes
+#       card_<naipe>_<valor>.png (ex.: card_clubs_02.png, card_hearts_A.png, card_joker_red.png).
+# 2) Monte as 53 classes a partir desses PNGs (joker = os 2 coringas):
+python -m src.extra_designs --assets-dir "PNG/Cards (large)" --out data/raw/extra_kenney
 ```
 
 ### 2. Augmentation de aparência/design

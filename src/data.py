@@ -133,16 +133,29 @@ def build_dataloaders(
     # Mistura designs extras no TREINO (mesma augmentation), validando as classes.
     if extra_train_dirs:
         parts = [train_ds]
+        train_class_to_idx = train_ds.class_to_idx
         for extra in extra_train_dirs:
             extra_ds = datasets.ImageFolder(extra, transform=train_tf)
-            if extra_ds.classes != class_names:
+            # O extra pode ser um SUBCONJUNTO das classes do treino (ex.: um baralho
+            # sem coringa) — mas nunca pode ter uma classe que o treino nao tem,
+            # nem um nome divergente (senao os rotulos ficariam inconsistentes).
+            desconhecidas = [c for c in extra_ds.classes if c not in train_class_to_idx]
+            if desconhecidas:
                 raise ValueError(
-                    f"As classes do design extra em '{extra}' diferem do treino.\n"
-                    f"  treino : {class_names}\n  extra  : {extra_ds.classes}\n"
-                    "Garanta 1 subpasta por classe com EXATAMENTE os mesmos nomes."
+                    f"O design extra em '{extra}' tem classes que nao existem no treino:\n"
+                    f"  {desconhecidas}\n"
+                    "Garanta 1 subpasta por classe com EXATAMENTE os mesmos nomes do treino."
                 )
+            # Remapeia os rotulos do extra para os indices do treino (a ordem de
+            # classes do ImageFolder do extra pode diferir se faltar alguma classe).
+            if extra_ds.class_to_idx != train_class_to_idx:
+                remap = {extra_ds.class_to_idx[c]: train_class_to_idx[c] for c in extra_ds.classes}
+                extra_ds.samples = [(p, remap[t]) for (p, t) in extra_ds.samples]
+                extra_ds.targets = [remap[t] for t in extra_ds.targets]
+            faltando = [c for c in class_names if c not in extra_ds.classes]
+            nota = f" (sem {len(faltando)} classe(s): {faltando})" if faltando else ""
             parts.append(extra_ds)
-            print(f"  + design extra: {extra} ({len(extra_ds)} imagens)")
+            print(f"  + design extra: {extra} ({len(extra_ds)} imagens){nota}")
         train_dataset = ConcatDataset(parts)
 
     loaders = {

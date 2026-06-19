@@ -8,14 +8,18 @@ Logística).
 > Projeto da disciplina **Introdução à Ciência de Dados (ICD)** — Curso de
 > **Análise e Desenvolvimento de Sistemas (ADS)**. Autores: Nicolas; Herick.
 
+🔗 **Demonstração ao vivo:** <https://herickhuggingfaceaccount-cartas.hf.space>
+(hospedada no Hugging Face Spaces; abra no computador ou no celular)
+
 ---
 
 ## Objetivo
 
 Reconhecer automaticamente qual carta aparece em uma imagem RGB de 224×224 px.
 A motivação principal é **educacional** (ensino de probabilidade, regras de
-jogos e matemática), com aplicações secundárias em **acessibilidade** (leitura
-da carta em voz alta) e em **pesquisa/benchmark** de visão computacional.
+jogos e matemática), com aplicações secundárias potenciais em **acessibilidade**
+(ex.: leitura da carta em voz alta) e em **pesquisa/benchmark** de visão
+computacional.
 
 A **detecção** de várias cartas em uma mesma cena está **fora do escopo** e é
 tratada como trabalho futuro.
@@ -25,18 +29,22 @@ tratada como trabalho futuro.
 ```
 .
 ├── src/            # código-fonte (data, train, evaluate, baseline, predict, config, seed)
+│   ├── app.py      #   servidor Flask da demonstração web
+│   └── frontend/   #   interface estática (HTML/CSS/JS, sem build)
 ├── notebooks/      # notebook de treino no Google Colab (GPU T4)
 ├── models/         # checkpoints treinados (.pt) e históricos de treino (history.json)
 ├── reports/        # métricas, matrizes de confusão e relatório
 ├── data/           # SOMENTE instruções de acesso aos dados (ver data/README.md)
 ├── docs/           # documentação de apoio (definição, dados, ética, model card)
+├── Dockerfile      # imagem de deploy (Hugging Face Spaces, CPU)
 ├── requirements.txt
 ├── LICENSE         # MIT
 └── README.md
 ```
 
-> **Nota sobre o código:** os scripts de `src/` e o notebook de `notebooks/`
-> devem ser adicionados aqui. As pastas já estão preparadas para recebê-los.
+> **Documentação completa** em [`docs/`](docs/): definição do problema, dados,
+> ética/impacto, [Model Card](docs/MODEL_CARD.md) e
+> [Relatório de desenvolvimento](docs/RELATORIO_DESENVOLVIMENTO.md).
 
 ## Dependências
 
@@ -90,6 +98,44 @@ python -m src.predict --img <caminho_da_imagem>
 Todos os experimentos usam **semente fixa** (`set_seed(42)`), batch size 32,
 imagem 224×224 e normalização ImageNet.
 
+## Aplicação web (demonstração)
+
+Interface web simples (Flask + HTML/CSS/JS, **sem build**) que reaproveita o
+modelo já treinado e versionado (`models/efficientnet_b0_best.pt`) — roda em
+CPU, sem GPU nem dataset.
+
+**Online (sem instalar nada):**
+<https://herickhuggingfaceaccount-cartas.hf.space>
+
+**Local:**
+
+```bash
+pip install flask          # ou: pip install -r requirements.txt
+python -m src.app          # abra http://localhost:5000
+```
+
+Funcionalidades:
+
+- **Reconhecer:** envie a foto de uma carta recortada → predição com **top-5** e
+  barras de probabilidade. Aceita **upload**, **arrastar-soltar** e, no celular,
+  os botões **“Tirar foto”** (abre a câmera) e **“Galeria”**.
+- **Leitura em voz alta (acessibilidade):** opcional, **desligada por padrão**;
+  ao ligar (botão "Voz"), o resultado é falado em PT-BR (*Web Speech API*) e a
+  escolha fica salva no navegador.
+- **Sobre o modelo:** página com as métricas reais (de `reports/`): experimentos,
+  acurácia/F1 do modelo principal, acurácia OOD e as classes mais difíceis.
+- **Responsivo:** layout adaptado para celular.
+
+> A API tem 3 rotas: `GET /api/status`, `GET /api/stats`, `POST /api/predict`
+> (campo `image`, multipart). Veja [`src/app.py`](src/app.py).
+
+### Deploy (Hugging Face Spaces)
+
+A demo é publicada no **Hugging Face Spaces** (SDK *docker*), que builda e hospeda
+a partir do [`Dockerfile`](Dockerfile) — torch CPU-only, sem GPU. O checkpoint
+sobe via **Git LFS**. Como a Vercel não comporta o tamanho do PyTorch em função
+*serverless*, o HF Spaces é a opção adequada para servir o modelo gratuitamente.
+
 ## Métricas principais
 
 | Configuração | Acc. teste | F1-macro teste | Acc. OOD (design) |
@@ -127,7 +173,7 @@ e matrizes em
 
 ⚠️ É um **uso PROIBIDO** deste projeto empregá-lo para assistência em tempo real
 (*Real-Time Assistance*, RTA) em jogos de azar/apostas — prática vedada por
-plataformas como PokerStars e GGPoker. Ver [`docs/etica.md`](docs/etica.md).
+plataformas como PokerStars e GGPoker. Ver [`docs/03_etica_impacto.md`](docs/03_etica_impacto.md).
 
 ## Trabalhos futuros
 

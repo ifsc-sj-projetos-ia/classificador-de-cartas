@@ -1,7 +1,14 @@
 # --- Dados (licença "Other" do Kaggle: NÃO redistribuir) ---
-data/**
+# Ignora as imagens, mas preserva os READMEs e a estrutura de pastas (.gitkeep).
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 !data/README.md
 !data/.gitkeep
+*.zip
+*.tar
+*.tar.gz
 
 # --- Modelos treinados (.pt) ---
 # Estão VERSIONADOS neste repositório (16 MB cada, ~64 MB total).
@@ -17,6 +24,11 @@ __pycache__/
 .venv/
 venv/
 env/
+
+# --- Deploy (pasta isolada do Hugging Face Space; não vai pro GitHub) ---
+_hf_deploy/
+_*.png
+_*.log
 
 # --- Sistema / editores ---
 .DS_Store

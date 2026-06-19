@@ -1,46 +1,60 @@
 # Dados
 
-⚠️ **As imagens NÃO são redistribuídas neste repositório.** A licença do dataset
-principal está marcada como **"Other"** no Kaggle; redistribuir as imagens
-exigiria confirmação explícita dessa licença. Por isso, esta pasta contém
-**apenas instruções de acesso**.
+> As imagens **não** são versionadas no Git (ver `.gitignore`). Esta pasta guarda
+> apenas as instruções de download, seguindo o princípio de ciência aberta
+> ("dados sensíveis ou pesados não devem ir direto ao repositório").
 
-## Dataset principal — Cards Image Dataset-Classification (Kaggle)
+## Dataset principal — Classificação (Kaggle)
 
-- **Autor:** gpiosenka
-- **Conteúdo:** 53 classes (52 cartas + 1 coringa), imagens 224×224×3 RGB já
-  recortadas.
-- **Split pronto:** treino/validação/teste = **7.624 / 265 / 265**
-  (5 imagens por classe em validação e teste).
-- **Download:** https://www.kaggle.com/datasets/gpiosenka/cards-image-datasetclassification
+**Cards Image Dataset-Classification** (autor: gpiosenka)
+<https://www.kaggle.com/datasets/gpiosenka/cards-image-datasetclassification>
+
+- **53 classes** = 52 cartas (13 valores × 4 naipes) + 1 coringa (*joker*).
+- Imagens **224×224×3** (JPG), já recortadas (carta ocupa > 50% da imagem).
+- Split pronto: **7.624 treino / 265 validação / 265 teste** (5 imagens por classe em val/teste).
+- Estrutura: `train/`, `valid/`, `test/`, cada uma com 53 subpastas (uma por classe), + `cards.csv`.
+- Licença: marcada como *"Other"* no Kaggle — **confirme a licença na página** antes de redistribuir.
 
 ### Como baixar
 
-Pela API do Kaggle (requer `~/.kaggle/kaggle.json` configurado):
+**Opção A — kagglehub (recomendada no Colab):**
+```python
+import kagglehub
+path = kagglehub.dataset_download("gpiosenka/cards-image-datasetclassification")
+print(path)  # use este caminho como data_dir
+```
+
+**Opção B — Kaggle API (kaggle.json):**
+1. Em <https://www.kaggle.com/settings> → *Create New API Token* (baixa `kaggle.json`).
+2. No Colab, faça upload do `kaggle.json` e rode:
+```bash
+mkdir -p ~/.kaggle && cp kaggle.json ~/.kaggle/ && chmod 600 ~/.kaggle/kaggle.json
+kaggle datasets download -d gpiosenka/cards-image-datasetclassification -p data/raw --unzip
+```
+
+Após baixar, aponte `data_dir` para a pasta que contém `train/`, `valid/` e `test/`
+(por padrão o projeto usa `data/raw/cards`).
+
+## Conjunto de teste OOD — baralho de "design diferente" (web)
+
+Para o experimento de generalização (out-of-distribution) desta entrega, usamos um
+**baralho de design diferente** do de treino, montado a partir de **imagens limpas de
+licença livre**. Ele é gerado de forma reprodutível (não versionamos as imagens):
 
 ```bash
-pip install kaggle
-kaggle datasets download -d gpiosenka/cards-image-datasetclassification
-unzip cards-image-datasetclassification.zip -d data/cards/
+python -m src.ood_design --out data/raw/ood_design_web
 ```
 
-Estrutura esperada após extrair (ajuste conforme `src/config.py`):
+Isso cria `data/raw/ood_design_web/` com **uma subpasta por classe** usando **exatamente
+os mesmos nomes** das subpastas do Kaggle (ex.: `ace of spades/`, `king of hearts/`, `joker/`),
+prontas para `src.evaluate.evaluate_ood`.
 
-```
-data/cards/
-├── train/   # 7.624 imagens, subpastas por classe
-├── valid/   # 265 imagens
-└── test/    # 265 imagens
-```
+- **O que mede:** o **gap de design** (estilo de carta diferente do treino) — não o gap de
+  condições de captura (luz/sombra/fundo de fotos reais). Detalhes: [`../docs/guia_ood_design_web.md`](../docs/guia_ood_design_web.md).
+- **Fonte/licença:** baralho derivado de *Vector Playing Cards* (domínio público), via
+  *playing-cards-assets* (Howard Yeh, MIT). **Não** são fotos dos autores.
 
-## Conjunto OOD — baralho de design diferente (apenas avaliação)
-
-- **Origem:** *Vector Playing Cards* (domínio público), via repositório
-  *playing-cards-assets* (Howard Yeh, licença MIT) —
-  https://github.com/notpeter/playing-cards-assets
-- **Conteúdo:** 53 classes / 54 imagens (1 por carta + 2 coringas na classe
-  `joker`). São **renders limpos**, não fotos reais.
-- **Uso:** **exclusivamente** para avaliar generalização (gap de design).
-  **Nunca** usar para treino.
-
-O script de montagem do conjunto OOD é o `src/ood_design.py`.
+> **Trabalho futuro — OOD com fotos reais (gap de captura):** fotografar um baralho físico
+> próprio é o padrão-ouro e mede um gap que as imagens da web não cobrem. Guia:
+> [`../docs/guia_coleta_baralho_real.md`](../docs/guia_coleta_baralho_real.md). Nesse caso, use
+> a pasta `data/raw/ood_baralho_real/` e ajuste `OOD_DIR` no notebook.

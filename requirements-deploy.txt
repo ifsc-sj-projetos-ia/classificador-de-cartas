@@ -1,0 +1,8 @@
+# Dependencias MINIMAS para o deploy web (Hugging Face Spaces, CPU).
+# So o que a inferencia + frontend precisam — nao inclui treino/baseline/plots.
+# torch/torchvision CPU-only vem do indice extra no Dockerfile
+# (--extra-index-url https://download.pytorch.org/whl/cpu).
+torch>=2.2
+torchvision>=0.17
+pillow>=10.0
+flask>=3.0

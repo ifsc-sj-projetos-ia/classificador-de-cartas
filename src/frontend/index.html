@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classificador de Cartas</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">🃏 Classificador de Cartas</div>
+    <nav class="topnav">
+        <a href="#" data-target="home" class="active">Reconhecer</a>
+        <a href="#" data-target="about">Sobre o modelo</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <!-- ===================== PÁGINA: RECONHECER ===================== -->
+    <section id="home" class="page active">
+        <div class="hero">
+            <h1>Reconhecer uma carta</h1>
+            <p>Envie a foto de <strong>uma carta de baralho recortada</strong>. O modelo
+               (EfficientNet-B0) diz qual é, entre 53 classes (52 cartas + coringa).</p>
+            <p id="initStatus" class="status-line">Carregando modelo…</p>
+        </div>
+
+        <div class="card upload-card">
+            <!-- Inputs ocultos: um abre a câmera traseira (mobile), outro a galeria/arquivos -->
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+            <input type="file" id="galleryInput" accept="image/*" hidden>
+
+            <label for="galleryInput" class="dropzone" id="dropzone">
+                <div class="dropzone-inner" id="dropzoneInner">
+                    <span class="dz-icon">🃏</span>
+                    <span class="dz-text">Toque para escolher uma carta<br><small>ou use os botões abaixo</small></span>
+                </div>
+                <img id="preview" class="preview hidden" alt="prévia da carta">
+            </label>
+
+            <div class="source-buttons">
+                <button type="button" class="btn source-btn" id="btnCamera">📷 Tirar foto</button>
+                <button type="button" class="btn source-btn" id="btnGallery">🖼️ Galeria</button>
+            </div>
+
+            <div class="upload-actions">
+                <button type="button" class="btn source-btn" id="btnVoice"
+                        aria-pressed="false" title="Acessibilidade: ler o resultado em voz alta">
+                    🔈 Acessibilidade
+                </button>
+                <button type="button" class="btn primary" id="btnPredict" disabled>Reconhecer carta</button>
+            </div>
+        </div>
+
+        <div id="resultPanel" class="card result hidden">
+            <div class="result-head">
+                <div class="big-card" id="bigCard">—</div>
+                <div>
+                    <h2 id="verdictText">—</h2>
+                    <p id="confText" class="conf-text"></p>
+                </div>
+            </div>
+            <h3>Outras possibilidades</h3>
+            <div id="topkList" class="topk-list"></div>
+        </div>
+    </section>
+
+    <!-- ===================== PÁGINA: SOBRE O MODELO ===================== -->
+    <section id="about" class="page">
+        <div class="hero">
+            <h1>Sobre o modelo</h1>
+            <p>Transfer learning com EfficientNet-B0, treinado no dataset
+               <em>Cards Image Dataset-Classification</em> (Kaggle), com semente fixa (42).</p>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-group">
+                <div class="stats-group-header"><h3>Dataset</h3></div>
+                <div class="stats-grid">
+                    <div class="stat"><span class="stat-label">Classes</span><span class="stat-value" id="nClasses">—</span></div>
+                    <div class="stat"><span class="stat-label">Imagens de treino</span><span class="stat-value" id="trainSize">—</span></div>
+                    <div class="stat"><span class="stat-label">Validação</span><span class="stat-value" id="valSize">—</span></div>
+                    <div class="stat"><span class="stat-label">Teste</span><span class="stat-value" id="testSize">—</span></div>
+                </div>
+            </div>
+
+            <div class="stats-group">
+                <div class="stats-group-header">
+                    <h3>Modelo principal</h3>
+                    <span class="stats-subtitle">EfficientNet-B0 — fine-tuning com data augmentation</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat"><span class="stat-label">Acurácia (teste)</span><span class="stat-value accent" id="mainAcc">—</span></div>
+                    <div class="stat"><span class="stat-label">F1-macro (teste)</span><span class="stat-value" id="mainF1">—</span></div>
+                    <div class="stat"><span class="stat-label">Acurácia OOD</span><span class="stat-value" id="oodAcc">—</span><span class="stat-hint">baralho de design diferente (gap ≈ 35 pp)</span></div>
+                </div>
+            </div>
+
+            <div class="stats-group">
+                <div class="stats-group-header">
+                    <h3>Experimentos</h3>
+                    <span class="stats-subtitle">Comparação das configurações (item 2.4)</span>
+                </div>
+                <div class="model-details" id="experimentsList"></div>
+            </div>
+
+            <div class="stats-group">
+                <div class="stats-group-header">
+                    <h3>Classes mais difíceis</h3>
+                    <span class="stats-subtitle">Menor F1 no teste — onde o modelo mais erra</span>
+                </div>
+                <div class="model-details" id="worstList"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="foot">
+    Projeto ICD/ADS · Nicolas &amp; Herick · uso educacional/acessibilidade ·
+    <strong>não</strong> para apostas em tempo real.
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

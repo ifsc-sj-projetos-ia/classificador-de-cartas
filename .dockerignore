@@ -1,0 +1,15 @@
+# Nao enviar para a imagem de deploy: pesados/desnecessarios para inferencia.
+.git/
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+notebooks/
+docs/
+data/
+.vscode/
+.idea/
+*.log
+_*.png
+# Mantemos models/ e reports/ (usados pelo app), entao NAO ignorar aqui.

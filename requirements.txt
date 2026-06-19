@@ -1,13 +1,35 @@
-# Ambiente de referência: Google Colab (GPU T4), Python 3.
-# Ajuste/pinar as versões EXATAS usadas no treino antes de publicar
-# (rode `pip freeze` no Colab e cole aqui) para garantir reprodutibilidade.
+# Dependencias do projeto de reconhecimento de cartas de baralho.
+#
+# No Google Colab, torch/torchvision JA vem instalados (com a versao de CUDA
+# correta) — instalar versoes fixas pode quebrar a GPU. Por isso torch e
+# torchvision ficam sem pin rigido. As demais libs sao pinadas para
+# reprodutibilidade (item de ciencia aberta do enunciado).
+#
+# Para reproduzir EXATAMENTE o seu ambiente depois de rodar, gere o lock com:
+#     pip freeze > requirements-lock.txt
 
-torch
-torchvision
-numpy
-scikit-learn
-scikit-image        # HOG do baseline
-matplotlib          # matrizes de confusão
-pandas              # leitura/geração dos CSVs em reports/
-pillow              # carregamento de imagens
-tqdm                # barras de progresso
+# --- Deep learning (transfer learning) ---
+torch>=2.2
+torchvision>=0.17
+
+# --- Baseline classico e metricas ---
+scikit-learn==1.5.2
+scikit-image==0.24.0
+
+# --- Manipulacao de dados e imagens ---
+numpy==1.26.4
+pandas==2.2.3
+pillow==10.4.0
+
+# --- Visualizacao ---
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# --- Utilidades ---
+tqdm==4.66.5
+
+# --- Frontend web (app de demonstracao: python -m src.app) ---
+flask>=3.0
+
+# --- Download do dataset do Kaggle (opcional; ver data/README.md) ---
+kagglehub==0.3.4

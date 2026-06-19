@@ -8,7 +8,7 @@
 
 **Propósito deste documento.** Este é um **relatório de desenvolvimento técnico**, mais detalhado que o relatório final. Ele serve a dois objetivos: (a) ser a base de conteúdo para escrever o **relatório final** (`reports/relatorio_final_outline.md`) e os **slides**; e (b) ser **material de estudo para a defesa oral** (ver Seção 13, "Banco de perguntas e respostas"). O tom é técnico-acadêmico e **honesto**: limitações, incertezas e itens pendentes são declarados explicitamente.
 
-> **Nota de integridade dos números.** Todas as métricas citadas foram **medidas no Colab (GPU T4), `set_seed(42)`**. Há **um único valor ainda não medido**, marcado ao longo do texto como **(a medir)**: a acurácia/F1 **OOD do modelo sem augmentation** (célula 8b do notebook). Onde a referência da literatura aparece (~93–95%), ela é **expectativa**, não resultado deste trabalho.
+> **Nota de integridade dos números.** Todas as métricas citadas foram **medidas no Colab (GPU T4), `set_seed(42)`** — incluindo a OOD do modelo sem augmentation (célula 8b) e o Experimento 4 (2º design + aug de aparência). Onde a referência da literatura aparece (~93–95%), ela é **expectativa**, não resultado deste trabalho.
 
 ---
 
@@ -226,6 +226,16 @@ Os três experimentos são controlados (variando um fator por vez) e rodam no no
 - **Resultado:** teste **0,9472** → **OOD design 0,5926 / F1 0,5741**; **gap de design ≈ 0,3546 (≈ 35 pp)**.
 - **Interpretação:** a queda de ~35 pp mostra que o modelo **decorou parcialmente o estilo visual** do dataset de treino — não generaliza perfeitamente para outro design. **Ressalva crucial:** como as imagens OOD são **limpas**, este gap é um **LIMITE INFERIOR**; com **fotos reais** (gap de captura: luz, sombra, fundo, ângulo) a queda tende a ser **maior**. Medir isso é trabalho futuro (`docs/guia_coleta_baralho_real.md`).
 
+### 7.4 Experimento 4 — Tentativa de reduzir o gap de design (**resultado negativo**)
+
+- **Hipótese:** se o gap de ~35 pp vem de o modelo **decorar o estilo** do baralho de treino, então **diversificar o estilo** durante o treino deveria forçá-lo a aprender o conceito invariante (valor + naipe) e **subir a OOD**.
+- **Método (duas alavancas combinadas):**
+  1. **Segundo design no treino** — misturou-se um baralho de design distinto (**Kenney Playing Cards Pack**, licença **CC0**, 54 imagens) ao conjunto de treino via `ConcatDataset` (`src/extra_designs.py`, `extra_train_dirs` em `src/data.py`). Treino passou de 7.624 → **7.678** imagens. O OOD (Vector Cards) **permaneceu fora** do treino — sem vazamento.
+  2. **Augmentation de aparência** (`design_aug=True`) — `ColorJitter(hue=0.5)`, `RandomGrayscale(p=0.20)`, `RandomPosterize(bits=4, p=0.30)`, `RandomAdjustSharpness(p=0.30)`, atacando especificamente cor/textura de arte (`src/data.build_transforms`).
+- **Resultado:** treino **converge igual** (val **0,9962**, até ligeiramente acima do principal), mas a **OOD não se moveu**: **0,5926 / F1 0,5710** — **idêntica** ao baseline (mesmas **32/54** cartas certas).
+- **Interpretação (por que empatou):** o número idêntico nas **três** configurações (com aug, sem aug, e agora com 2º design + aug de aparência) indica que os erros são **estruturais**, não de margem — o modelo acerta as **mesmas 32** cartas e erra as **mesmas 22**, independentemente do treino. Diversidade de estilo **genérica** (um baralho a mais + perturbação de cor) **não** aproxima o modelo do design-alvo específico do OOD. A val_acc subir para 99,6% mostra que o Kenney foi **absorvido sem esforço** — ou seja, não gerou a pressão de invariância pretendida.
+- **Conclusão metodológica:** reduzir o gap de design de fato exigiria **(a)** treinar com um design **próximo do alvo**, ou **(b)** diversidade de designs **muito maior** (dezenas de baralhos), ou **(c)** atacar o gap de **captura** com fotos reais — não uma única intervenção de variação genérica. **O modelo entregue continua o principal** (`models/`); o checkpoint deste experimento (`models_ood/`) **não** o substitui, por não trazer ganho. Este é um **resultado negativo honesto** que **reforça** o achado do Experimento 3: o gap mede distância de design real, não falta de regularização.
+
 ---
 
 ## 8. Resultados consolidados e análise de erros
@@ -238,14 +248,15 @@ Os três experimentos são controlados (variando um fator por vez) e rodam no no
 | EfficientNet-B0 — FE (congelado) | 0,3849 | 0,3630 | — | — | Features ImageNet fracas p/ cartas |
 | **EfficientNet-B0 — FE+FT com aug** ← **principal** | **0,9472** | **0,9472** | **0,5926** | **0,5741** | Modelo entregue; gap de design ≈ 35 pp |
 | EfficientNet-B0 — FE+FT sem aug | 0,9736 | 0,9734 | 0,5926 | 0,5678 | Maior no teste limpo; **mesma acc. OOD** (gap maior, ≈ 38 pp) |
+| EfficientNet-B0 — 2º design (Kenney) + aug de aparência | — | — | 0,5926 | 0,5710 | **Exp. 4**: tentativa de reduzir o gap; OOD **inalterada** (resultado negativo) |
 
-> Valores de validação relevantes: FE val 0,4528; FE+FT com aug val 0,9925; FE+FT sem aug val 0,9887. Referência da literatura (não é resultado deste trabalho): transfer learning em cartas tende a ~93–95% in-distribution — o modelo principal (94,7%) está alinhado.
+> Valores de validação relevantes: FE val 0,4528; FE+FT com aug val 0,9925; FE+FT sem aug val 0,9887; Exp. 4 (2º design + aug aparência) val **0,9962**. Referência da literatura (não é resultado deste trabalho): transfer learning em cartas tende a ~93–95% in-distribution — o modelo principal (94,7%) está alinhado.
 
 **Leituras-chave:**
 
 - O modelo principal **supera o baseline com folga** (94,7% vs 70,6%), evidenciando o valor do transfer learning (meta de "superar o baseline" atingida; metas de >90% acc e >0,90 F1 atingidas).
 - **F1-macro = accuracy (0,9472)** no teste indica desempenho **homogêneo** entre as 53 classes — por isso **não** foi necessário usar *class weights* nem amostragem balanceada.
-- A queda no OOD (≈35 pp) é o principal achado de **limitação de generalização**.
+- A queda no OOD (≈35 pp) é o principal achado de **limitação de generalização** — e **três** intervenções distintas (com/sem aug de captura; 2º design + aug de aparência) a deixaram **inalterada** (sempre 0,5926), o que indica que o gap reflete **distância de design real**, não falta de regularização (ver Exp. 4).
 
 ### 8.2 Análise de erros e "confusões perigosas" (teste Kaggle)
 
